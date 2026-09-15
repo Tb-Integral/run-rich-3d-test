@@ -1,0 +1,9 @@
+{
+  "name": "ButchersGames.LevelManagement.Editor",
+  "references": [
+    "ButchersGames.LevelManagement"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

@@ -1,0 +1,10 @@
+---
+description: Правила Unity C# для Run Rich 3D
+globs: Assets/**/*.cs
+alwaysApply: false
+---
+
+Следовать разделу «Unity и код» в AGENTS.md.
+Сохранять .meta и GUID. Editor API отделять от runtime.
+Использовать Input System, сериализованные настройки и симметричные подписки.
+Не помещать всю игру в один MonoBehaviour и не строить лишние абстракции.

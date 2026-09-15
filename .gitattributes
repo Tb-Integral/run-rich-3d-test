@@ -1,0 +1,14 @@
+* text=auto
+*.cs text eol=lf
+*.md text eol=lf
+*.toml text eol=lf
+*.json text eol=lf
+*.shader text eol=lf
+*.meta text eol=lf
+*.unity text eol=lf
+*.prefab text eol=lf
+*.mat text eol=lf
+*.fbx binary
+*.png binary
+*.ogg binary
+*.ttf binary

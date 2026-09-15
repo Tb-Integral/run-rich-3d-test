@@ -1,0 +1,7 @@
+{
+  "name": "RunRich.Editor",
+  "rootNamespace": "RunRich.Editor",
+  "includePlatforms": [
+    "Editor"
+  ]
+}

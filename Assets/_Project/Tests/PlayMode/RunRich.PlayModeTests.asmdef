@@ -1,0 +1,10 @@
+{
+  "name": "RunRich.PlayModeTests",
+  "rootNamespace": "RunRich.Tests",
+  "references": [
+    "ButchersGames.LevelManagement"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
