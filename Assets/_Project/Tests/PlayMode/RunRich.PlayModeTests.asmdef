@@ -2,6 +2,7 @@
   "name": "RunRich.PlayModeTests",
   "rootNamespace": "RunRich.Tests",
   "references": [
+    "RunRich.Runtime",
     "ButchersGames.LevelManagement"
   ],
   "optionalUnityReferences": [

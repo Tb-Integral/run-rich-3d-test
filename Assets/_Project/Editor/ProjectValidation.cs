@@ -40,6 +40,13 @@ namespace RunRich.Editor
                         clips.Add($"{path}: {clip.name}, {clip.length:F3}s");
             }
             result.modelDetails = models.ToArray();
+            foreach (string guid in AssetDatabase.FindAssets("t:AnimationClip", new[] { "Assets/_Project" }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (!path.EndsWith(".anim")) continue;
+                var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
+                clips.Add($"{path}: {clip.name}, {clip.length:F3}s");
+            }
             result.animationClips = clips.ToArray();
             result.surfaceShaders = Directory.GetFiles("Assets", "*.shader", SearchOption.AllDirectories)
                 .Where(path => File.ReadAllText(path).Contains("#pragma surface")).ToArray();
