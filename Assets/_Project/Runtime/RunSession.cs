@@ -23,6 +23,7 @@ namespace RunRich
         private float _finishElapsed;
 
         public event Action Changed;
+        public event Action FinishGateOpened;
         public RunState State { get; private set; } = RunState.Ready;
         public int Score => wealth.Score;
         public float Distance => motor.Distance;
@@ -107,7 +108,11 @@ namespace RunRich
             {
                 ResultMultiplier = Mathf.Max(ResultMultiplier, multiplier);
                 NotifyChanged();
-                if (!isFinal) return true;
+                if (!isFinal)
+                {
+                    FinishGateOpened?.Invoke();
+                    return true;
+                }
             }
             // Остановка на пересечённой границе исключает проход сквозь закрытые ворота при низком FPS.
             motor.StopAt(distance, offset);

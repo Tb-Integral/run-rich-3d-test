@@ -77,23 +77,33 @@ namespace RunRich
 
         private void LateUpdate()
         {
+            if (!bar.gameObject.activeSelf && !popup.gameObject.activeSelf) return;
             Vector3 screen = worldCamera.WorldToScreenPoint(target.position + headOffset);
             var uiCamera = _canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : _canvas.worldCamera;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screen, uiCamera, out var local);
-            bar.anchoredPosition = local;
+            bar.anchoredPosition = KeepInsideCanvas(local, bar);
             float blend = fillDamping <= 0 ? 1 : 1 - Mathf.Exp(-Time.deltaTime / fillDamping);
             _displayed = Mathf.Lerp(_displayed, wealth.Normalized, blend);
+            if (Mathf.Abs(_displayed - wealth.Normalized) < 0.0005f) _displayed = wealth.Normalized;
             fill.anchorMax = new Vector2(_displayed, 1);
             fill.gameObject.SetActive(_displayed > 0.001f);
             if (!popup.gameObject.activeSelf) return;
             _popupElapsed += Time.deltaTime;
             float progress = Mathf.Clamp01(_popupElapsed / popupDuration);
-            popup.rectTransform.anchoredPosition = local + popupOffset + Vector2.up * (progress * 65);
+            popup.rectTransform.anchoredPosition = KeepInsideCanvas(local + popupOffset + Vector2.up * (progress * 65), popup.rectTransform);
             var color = popup.color;
             color.a = 1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(0.45f, 1, progress));
             popup.color = color;
             popup.rectTransform.localScale = Vector3.one * (1 + 0.18f * Mathf.Sin(progress * Mathf.PI));
             if (progress >= 1) popup.gameObject.SetActive(false);
+        }
+        private Vector2 KeepInsideCanvas(Vector2 position, RectTransform element)
+        {
+            Vector2 half = element.rect.size * 0.6f + Vector2.one * 12;
+            Rect bounds = canvasRect.rect;
+            position.x = Mathf.Clamp(position.x, bounds.xMin + half.x, bounds.xMax - half.x);
+            position.y = Mathf.Clamp(position.y, bounds.yMin + half.y, bounds.yMax - half.y);
+            return position;
         }
     }
 }

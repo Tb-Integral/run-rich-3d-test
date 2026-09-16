@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfaf4e4c17d9f6440a6dcf21e42d6637, type: 3}
+  m_Name: RunAudioSettings
+  m_EditorClassIdentifier: RunRich.Runtime::RunRich.RunAudioSettings
+  <MasterVolume>k__BackingField: 0.65
+  <StepVolume>k__BackingField: 0.25
+  <EffectVolume>k__BackingField: 0.6
+  <PickupCooldown>k__BackingField: 0.06
+  <Footsteps>k__BackingField:
+  - {fileID: 8300000, guid: c567156db90391e4cae344e37596c32e, type: 3}
+  - {fileID: 8300000, guid: 85755605ab242c74fb05262be738a69d, type: 3}
+  - {fileID: 8300000, guid: 9918dbe21c7f1a640b1b1436796e9cf3, type: 3}
+  - {fileID: 8300000, guid: 3d84aca4341b0ba49ae53a0f37acfaaa, type: 3}
+  - {fileID: 8300000, guid: 39a16ef1f72432c44a0672d7add7fc90, type: 3}
+  <Heels>k__BackingField:
+  - {fileID: 8300000, guid: 2ccaa95088cb5d94887eaa401636f206, type: 3}
+  - {fileID: 8300000, guid: ffaf1e70823e03c49868f9598a881dd8, type: 3}
+  <Collect>k__BackingField: {fileID: 8300000, guid: a65fec8aac269ce4f8610bafc0d6c5b4, type: 3}
+  <LoseMoney>k__BackingField: {fileID: 8300000, guid: 1e157d47cf27d89478ac5011259e8076, type: 3}
+  <Upgrade>k__BackingField: {fileID: 8300000, guid: a8b2d1794e787e2488a8df9fb936f8bd, type: 3}
+  <Gate>k__BackingField: {fileID: 8300000, guid: cb11c14b5bd86b64b8b39e9e3b73e97a, type: 3}
+  <Victory>k__BackingField: {fileID: 8300000, guid: e82394182d077994b894cd004419b0b6, type: 3}
+  <Defeat>k__BackingField: {fileID: 8300000, guid: f2fad8a4d0dac4345ba92e5b19b5e128, type: 3}
+  <Click>k__BackingField: {fileID: 8300000, guid: 991c13f5cacc9584d9ab2dfed9d95a40, type: 3}
+  <Photograph>k__BackingField: {fileID: 8300000, guid: f8dbbaeaf1b9e854dbacaefad182aacf, type: 3}

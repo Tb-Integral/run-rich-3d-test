@@ -21,6 +21,8 @@ namespace RunRich
         private float _tutorialTime;
         private Rect _lastSafeArea;
         private Vector2Int _lastScreen;
+        private int _displayedLevel = -1;
+        private int _displayedScore = -1;
 
         private void Awake() => _handOrigin = hand.anchoredPosition;
         private void OnEnable()
@@ -43,8 +45,10 @@ namespace RunRich
         }
         private void Refresh()
         {
-            levelLabel.text = $"УРОВЕНЬ {session.LevelNumber}";
-            scoreLabel.text = $"{session.Score} $";
+            if (_displayedLevel != session.LevelNumber)
+            { _displayedLevel = session.LevelNumber; levelLabel.text = $"УРОВЕНЬ {_displayedLevel}"; }
+            if (_displayedScore != session.Score)
+            { _displayedScore = session.Score; scoreLabel.text = $"{_displayedScore} $"; }
             restart.gameObject.SetActive(session.State == RunSession.RunState.Ready || session.State == RunSession.RunState.Running);
             tutorial.SetActive(session.State == RunSession.RunState.Ready);
             if (tutorial.activeSelf) { _tutorialTime = 0; hand.anchoredPosition = _handOrigin; }

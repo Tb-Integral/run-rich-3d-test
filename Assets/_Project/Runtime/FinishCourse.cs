@@ -9,10 +9,12 @@ namespace RunRich
         [SerializeField] private float cameraPitch = 12.5f;
         [SerializeField, Range(20, 70)] private float cameraFieldOfView = 60;
         [SerializeField, Range(0, 1)] private float cameraLateralFollow = 0.45f;
+        [SerializeField] private ParticleSystem photographFlash;
         public float StartDistance => startDistance;
         public Vector3 CameraOffset => cameraOffset;
         public float CameraPitch => cameraPitch;
         public float CameraFieldOfView => cameraFieldOfView;
         public float CameraLateralFollow => cameraLateralFollow;
+        public ParticleSystem PhotographFlash => photographFlash;
     }
 }
