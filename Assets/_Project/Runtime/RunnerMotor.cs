@@ -12,6 +12,7 @@ namespace RunRich
         [SerializeField] private bool startAutomatically = true;
 
         public event Action ReachedEnd;
+        public event Action<Vector2, Vector2> Advanced;
         public void BindPath(TrackPath track) { Stop(); path = track; }
         public TrackPath Path => path;
         public RunnerSettings Settings => settings;
@@ -72,11 +73,14 @@ namespace RunRich
             if (!IsRunning || deltaTime <= 0) return;
             // Не умножаем перемещение указателя на deltaTime: оно уже накоплено за кадр.
             float previousOffset = LateralOffset;
+            float previousDistance = Distance;
             LateralOffset = Mathf.Clamp(LateralOffset + normalizedDrag * path.Width * settings.DragSensitivity, -LateralLimit, LateralLimit);
             // На краю фактического бокового движения нет: модель возвращается прямо.
             presentation.SetLateralMotion((LateralOffset - previousOffset) / deltaTime);
             Distance = Mathf.Min(path.Length, Distance + settings.ForwardSpeed * deltaTime);
             ApplyPose();
+            Advanced?.Invoke(new Vector2(previousOffset, previousDistance), new Vector2(LateralOffset, Distance));
+            if (!IsRunning) return;
             if (Distance >= path.Length)
             {
                 Stop();

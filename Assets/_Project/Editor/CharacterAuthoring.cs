@@ -51,7 +51,7 @@ namespace RunRich.Editor
             var serialized = new SerializedObject(view);
             serialized.FindProperty("animator").objectReferenceValue = animator;
             serialized.FindProperty("visualPivot").objectReferenceValue = pivot;
-            string[] outfitNames = { "poor", "casual", "middle", "buisiness", "bling" };
+            string[] outfitNames = { "poor", "casual", "middle", "bling", "cocktail" };
             var outfits = serialized.FindProperty("outfits");
             outfits.arraySize = outfitNames.Length;
             var transforms = model.GetComponentsInChildren<Transform>(true);

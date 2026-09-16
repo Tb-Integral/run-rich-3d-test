@@ -105,7 +105,7 @@ namespace RunRich
             if (!IsUpgrading) PlayState();
         }
 
-        public bool SetOutfit(int index)
+        public bool SetOutfit(int index, bool animateUpgrade = true)
         {
             if (index < 0 || index >= outfits.Length || State == MotionState.Victory || State == MotionState.Defeat)
                 return false;
@@ -115,7 +115,7 @@ namespace RunRich
             OutfitIndex = index;
             ApplyOutfit();
             CancelUpgrade();
-            if (improved)
+            if (improved && animateUpgrade)
             {
                 IsUpgrading = true;
                 _upgradeElapsed = 0;
