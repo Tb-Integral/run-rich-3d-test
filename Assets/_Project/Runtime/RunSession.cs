@@ -18,13 +18,17 @@ namespace RunRich
         [SerializeField] private PickupCollector pickups;
         [SerializeField, Min(0)] private float finishDelay = 0.8f;
         private bool _initialized;
-        private int _restartFrame = -1;
+        private int _transitionFrame = -1;
+        private int _readyFrame = -1;
         private float _finishElapsed;
 
         public event Action Changed;
         public RunState State { get; private set; } = RunState.Ready;
         public int Score => wealth.Score;
+        public float Distance => motor.Distance;
         public int LevelNumber => levels.LevelNumber;
+        public int ResultMultiplier { get; private set; } = 1;
+        public int ResultScore { get; private set; }
 
         private void OnEnable()
         {
@@ -42,7 +46,7 @@ namespace RunRich
         {
             if (!_initialized) return;
             bool pressed = input.TryGetPressPosition(out var position);
-            if (State == RunState.Ready && pressed && !hud.BlocksStart(position))
+            if (State == RunState.Ready && Time.frameCount > _readyFrame && pressed && !hud.BlocksStart(position))
                 StartRun();
             if (State != RunState.Finishing) return;
             _finishElapsed += Time.deltaTime;
@@ -59,21 +63,31 @@ namespace RunRich
 
         public void Restart()
         {
-            if (!_initialized || _restartFrame == Time.frameCount) return;
-            _restartFrame = Time.frameCount;
+            if (!_initialized || _transitionFrame == Time.frameCount) return;
+            _transitionFrame = Time.frameCount;
             Prepare(true);
         }
 
-        private void Prepare(bool restart)
+        public void NextLevel()
+        {
+            if (!_initialized || State != RunState.Won || _transitionFrame == Time.frameCount) return;
+            _transitionFrame = Time.frameCount;
+            Prepare(false, true);
+        }
+
+        private void Prepare(bool restart, bool next = false)
         {
             _initialized = false;
             motor.Stop();
-            motor.BindPath(levels.Load(restart));
+            motor.BindPath(next ? levels.LoadNext() : levels.Load(restart));
             motor.ResetToStart();
             followCamera.Snap();
             pickups.Bind(motor.Path);
             wealth.ResetValue();
             _finishElapsed = 0;
+            ResultMultiplier = 1;
+            ResultScore = 0;
+            _readyFrame = Time.frameCount;
             _initialized = true;
             SetState(RunState.Ready);
         }
@@ -84,6 +98,21 @@ namespace RunRich
             motor.Stop();
             _finishElapsed = 0;
             SetState(RunState.Finishing);
+        }
+
+        public bool ResolveFinishGate(int requiredScore, int multiplier, float distance, float offset, bool isFinal = false)
+        {
+            if (!_initialized || !isActiveAndEnabled || State != RunState.Running) return false;
+            if (Score >= requiredScore)
+            {
+                ResultMultiplier = Mathf.Max(ResultMultiplier, multiplier);
+                NotifyChanged();
+                if (!isFinal) return true;
+            }
+            // Остановка на пересечённой границе исключает проход сквозь закрытые ворота при низком FPS.
+            motor.StopAt(distance, offset);
+            BeginFinishing();
+            return false;
         }
 
         public bool TryChangeScore(int delta)
@@ -101,6 +130,7 @@ namespace RunRich
         public void CompleteWin()
         {
             if (State != RunState.Finishing) return;
+            ResultScore = Score * ResultMultiplier;
             presentation.ShowVictory();
             SetState(RunState.Won);
         }

@@ -45,6 +45,7 @@ namespace RunRich
         {
             levelLabel.text = $"УРОВЕНЬ {session.LevelNumber}";
             scoreLabel.text = $"{session.Score} $";
+            restart.gameObject.SetActive(session.State == RunSession.RunState.Ready || session.State == RunSession.RunState.Running);
             tutorial.SetActive(session.State == RunSession.RunState.Ready);
             if (tutorial.activeSelf) { _tutorialTime = 0; hand.anchoredPosition = _handOrigin; }
         }

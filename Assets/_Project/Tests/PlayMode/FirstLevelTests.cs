@@ -23,7 +23,7 @@ namespace RunRich.Tests
                     new Vector2(1.3f, 0.1f), new Vector2(1.3f, 15.9f), new Vector2(-1.3f, 16.5f),
                     new Vector2(-1.3f, 20.1f), new Vector2(0, 21), new Vector2(0, 23),
                     new Vector2(1.3f, 25), new Vector2(1.3f, 53), new Vector2(-1.3f, 58),
-                    new Vector2(-1.3f, 70), new Vector2(1.3f, 72), new Vector2(1.3f, motor.Path.Length)
+                    new Vector2(-1.3f, 70), new Vector2(1.3f, 72), new Vector2(1.3f, motor.Path.GetComponentInChildren<FinishCourse>().StartDistance)
                 };
                 foreach (var point in points)
                 {
@@ -40,7 +40,7 @@ namespace RunRich.Tests
                     }
                 }
                 Assert.That(session.Score, Is.EqualTo(96), "Контрольный проход: 40 +20 −20 +10 +20 +12 +14.");
-                Assert.That(session.State, Is.EqualTo(RunSession.RunState.Finishing));
+                Assert.That(session.State, Is.EqualTo(RunSession.RunState.Running));
                 Assert.That(motor.Path.GetComponentInChildren<ChoiceGate>().Selected, Is.EqualTo(ChoiceGate.Choice.School));
                 Assert.That(motor.Path.GetComponentsInChildren<FlagZone>().All(zone => zone.IsTriggered), Is.True);
                 Assert.That(motor.Path.Evaluate(motor.Path.Length).rotation.eulerAngles.y, Is.EqualTo(90).Within(0.01f));

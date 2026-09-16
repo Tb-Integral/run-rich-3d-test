@@ -59,6 +59,14 @@ namespace RunRich
             }
         }
 
+public void StopAt(float distance, float lateralOffset)
+        {
+            Stop();
+            Distance = Mathf.Clamp(distance, 0, path.Length);
+            LateralOffset = Mathf.Clamp(lateralOffset, -LateralLimit, LateralLimit);
+            ApplyPose();
+        }
+
         public void ResetToStart()
         {
             Stop();
