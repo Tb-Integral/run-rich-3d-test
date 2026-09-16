@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using NUnit.Framework;
@@ -13,8 +14,8 @@ namespace RunRich.Tests
         public IEnumerator SweptCollectionMatchesAtLowAndHighFrameRates()
         {
             yield return Load();
-            var session = Object.FindFirstObjectByType<RunSession>();
-            var motor = Object.FindFirstObjectByType<RunnerMotor>();
+            var session = UnityEngine.Object.FindFirstObjectByType<RunSession>();
+            var motor = UnityEngine.Object.FindFirstObjectByType<RunnerMotor>();
             var view = motor.GetComponent<PlayerPresentation>();
             foreach (int fps in new[] { 2, 30, 60, 120 })
             {
@@ -32,6 +33,7 @@ namespace RunRich.Tests
                 Assert.That(view.OutfitIndex, Is.EqualTo(1));
                 Assert.That(view.IsUpgrading, Is.False, "Ухудшение отменяет вращение.");
                 session.Restart();
+                SetupPickups(motor);
                 yield return null;
             }
             yield return Unload();
@@ -41,8 +43,8 @@ namespace RunRich.Tests
         public IEnumerator LeftRowCausesDefeatAndRestartRestoresPickups()
         {
             yield return Load();
-            var session = Object.FindFirstObjectByType<RunSession>();
-            var motor = Object.FindFirstObjectByType<RunnerMotor>();
+            var session = UnityEngine.Object.FindFirstObjectByType<RunSession>();
+            var motor = UnityEngine.Object.FindFirstObjectByType<RunnerMotor>();
             var wealth = motor.GetComponent<PlayerWealth>();
             var old = motor.Path.GetComponentsInChildren<TrackPickup>();
             session.StartRun();
@@ -65,10 +67,11 @@ namespace RunRich.Tests
             session.Restart();
             Assert.That(wealth.Score, Is.EqualTo(40));
             Assert.That(motor.GetComponent<PlayerPresentation>().IsUpgrading, Is.False);
+            SetupPickups(motor);
             var fresh = motor.Path.GetComponentsInChildren<TrackPickup>();
             Assert.That(fresh.Length, Is.EqualTo(old.Length));
             Assert.That(fresh.All(p => !p.IsCollected), Is.True);
-            Assert.That(Object.FindFirstObjectByType<WealthHud>().transform.Find("Pickup Amount").gameObject.activeSelf, Is.False);
+            Assert.That(UnityEngine.Object.FindFirstObjectByType<WealthHud>().transform.Find("Pickup Amount").gameObject.activeSelf, Is.False);
             foreach (var particles in motor.GetComponentsInChildren<ParticleSystem>()) Assert.That(particles.particleCount, Is.Zero);
             yield return Unload();
         }
@@ -77,8 +80,8 @@ namespace RunRich.Tests
         public IEnumerator ExactZeroAllowsRecoveryButBelowZeroStopsTheRun()
         {
             yield return Load();
-            var session = Object.FindFirstObjectByType<RunSession>();
-            var motor = Object.FindFirstObjectByType<RunnerMotor>();
+            var session = UnityEngine.Object.FindFirstObjectByType<RunSession>();
+            var motor = UnityEngine.Object.FindFirstObjectByType<RunnerMotor>();
             session.StartRun();
             Assert.That(session.TryChangeScore(-40), Is.True);
             Assert.That(session.Score, Is.Zero);
@@ -105,8 +108,8 @@ namespace RunRich.Tests
         public IEnumerator TierBoundariesClampAndNeverMoveRunner()
         {
             yield return Load();
-            var session = Object.FindFirstObjectByType<RunSession>();
-            var motor = Object.FindFirstObjectByType<RunnerMotor>();
+            var session = UnityEngine.Object.FindFirstObjectByType<RunSession>();
+            var motor = UnityEngine.Object.FindFirstObjectByType<RunnerMotor>();
             var wealth = motor.GetComponent<PlayerWealth>();
             var view = motor.GetComponent<PlayerPresentation>();
             session.StartRun();
@@ -140,8 +143,8 @@ namespace RunRich.Tests
         public IEnumerator PickupIsRejectedOutsideRunningAndCannotReenter()
         {
             yield return Load();
-            var session = Object.FindFirstObjectByType<RunSession>();
-            var motor = Object.FindFirstObjectByType<RunnerMotor>();
+            var session = UnityEngine.Object.FindFirstObjectByType<RunSession>();
+            var motor = UnityEngine.Object.FindFirstObjectByType<RunnerMotor>();
             var wealth = motor.GetComponent<PlayerWealth>();
             var pickup = motor.Path.GetComponentsInChildren<TrackPickup>().First(p => p.Kind == TrackPickup.PickupKind.Money);
             Assert.That(pickup.TryCollect(session, wealth.Settings), Is.False);
@@ -171,6 +174,22 @@ namespace RunRich.Tests
         {
             yield return SceneManager.LoadSceneAsync("Gameplay", LoadSceneMode.Single);
             yield return null;
+            SetupPickups(UnityEngine.Object.FindFirstObjectByType<RunnerMotor>());
+        }
+        private static void SetupPickups(RunnerMotor motor)
+        {
+            // Геометрия проверки подбора независима от текущей расстановки уровня.
+            foreach (var interaction in motor.Path.GetComponentsInChildren<TrackInteraction>()) interaction.gameObject.SetActive(false);
+            for (int i = 0; i < 17; i++) Add(6 + i * 0.65f, 0, TrackPickup.PickupKind.Money);
+            Add(20, 0, TrackPickup.PickupKind.Alcohol); Add(22, 0, TrackPickup.PickupKind.Alcohol);
+            for (int i = 0; i < 3; i++) Add(7 + i * 3, -1.3f, TrackPickup.PickupKind.Alcohol);
+            motor.GetComponent<PickupCollector>().Bind(motor.Path);
+            void Add(float distance, float offset, TrackPickup.PickupKind kind)
+            {
+                var go = new GameObject("Pickup test fixture"); go.transform.SetParent(motor.Path.transform);
+                var pickup = go.AddComponent<TrackPickup>();
+                JsonUtility.FromJsonOverwrite(FormattableString.Invariant($"{{\"distance\":{distance},\"lateralOffset\":{offset},\"kind\":{(int)kind}}}"), pickup);
+            }
         }
         private static IEnumerator Unload()
         {

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: RunRich.Runtime::RunRich.WealthSettings
   initialScore: 40
   maximumScore: 150
-  happyScore: 80
+  happyScore: 150
   moneyValue: 2
   alcoholPenalty: 20
   tiers:

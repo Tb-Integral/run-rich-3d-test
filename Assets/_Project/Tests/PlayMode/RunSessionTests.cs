@@ -22,6 +22,7 @@ namespace RunRich.Tests
             Assert.That(session.State, Is.EqualTo(RunSession.RunState.Ready));
             Assert.That(motor.Distance, Is.Zero);
             Assert.That(motor.GetComponent<PlayerPresentation>().State, Is.EqualTo(PlayerPresentation.MotionState.Idle));
+            Assert.That(motor.GetComponent<PlayerPresentation>().Happiness, Is.EqualTo(40f / 150f));
             Assert.That(tutorial.activeSelf, Is.True);
             var mouse = InputSystem.AddDevice<Mouse>();
             var replay = motor.gameObject.AddComponent<SteeringMouseReplay>();
@@ -81,6 +82,8 @@ namespace RunRich.Tests
             view.SetHappiness(1); view.SetOutfit(3);
             session.Restart();
             var replacement = manager.CurrentLevelInstance;
+            Assert.That(view.GetComponentInChildren<Animator>().GetFloat("Happiness"), Is.EqualTo(40f / 150f),
+                "После рестарта стартовая грусть установлена сразу, без остатка прежней походки.");
             session.Restart();
             Assert.That(manager.CurrentLevelInstance, Is.SameAs(replacement));
             Assert.That(replacement, Is.Not.SameAs(original));
@@ -93,7 +96,7 @@ namespace RunRich.Tests
             Assert.That(motor.Distance, Is.Zero);
             Assert.That(motor.LateralOffset, Is.Zero);
             Assert.That(view.OutfitIndex, Is.EqualTo(1));
-            Assert.That(view.Happiness, Is.EqualTo(0.5f));
+            Assert.That(view.Happiness, Is.EqualTo(40f / 150f));
             Assert.That(view.IsUpgrading, Is.False);
             Assert.That(view.SteeringAngle, Is.Zero);
             var hud = Object.FindFirstObjectByType<RunHud>();
@@ -142,6 +145,7 @@ namespace RunRich.Tests
         {
             yield return SceneManager.LoadSceneAsync("Gameplay", LoadSceneMode.Single);
             yield return null;
+            Object.FindFirstObjectByType<PickupCollector>().enabled = false;
         }
         private static IEnumerator Unload()
         {

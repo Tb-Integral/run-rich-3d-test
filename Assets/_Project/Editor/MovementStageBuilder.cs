@@ -75,7 +75,7 @@ namespace RunRich.Editor
 
         private static T Get<T>(GameObject target) where T : Component => target.TryGetComponent<T>(out var component) ? component : target.AddComponent<T>();
 
-        private static Mesh BuildMesh(TrackPath path)
+        internal static Mesh BuildMesh(TrackPath path)
         {
             var vertices = new List<Vector3>();
             var triangles = new List<int>();

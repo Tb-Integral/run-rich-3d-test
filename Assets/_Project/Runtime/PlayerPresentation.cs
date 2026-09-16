@@ -93,7 +93,11 @@ namespace RunRich
             SteeringAngle = 0;
         }
 
-        public void SetHappiness(float normalized) => Happiness = Mathf.Clamp01(normalized);
+        public void SetHappiness(float normalized, bool immediate = false)
+        {
+            Happiness = Mathf.Clamp01(normalized);
+            if (immediate) animator.SetFloat(HappinessParameter, Happiness);
+        }
 
         public void SetWalking(bool walking)
         {

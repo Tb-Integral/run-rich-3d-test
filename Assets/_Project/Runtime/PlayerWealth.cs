@@ -34,7 +34,7 @@ namespace RunRich
 
         private void ApplyPresentation(bool animate)
         {
-            presentation.SetHappiness(settings.Happiness(Score));
+            presentation.SetHappiness(settings.Happiness(Score), immediate: !animate);
             presentation.SetOutfit(Tier.outfitIndex, animate);
         }
     }

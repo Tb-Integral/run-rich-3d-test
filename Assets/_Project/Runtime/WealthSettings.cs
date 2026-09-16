@@ -17,7 +17,7 @@ namespace RunRich
 
         [SerializeField, Min(0)] private int initialScore = 40;
         [SerializeField, Min(1)] private int maximumScore = 150;
-        [SerializeField, Min(1)] private int happyScore = 80;
+        [SerializeField, Min(1)] private int happyScore = 150;
         [SerializeField, Min(1)] private int moneyValue = 2;
         [SerializeField, Min(1)] private int alcoholPenalty = 20;
         [SerializeField] private Tier[] tiers =

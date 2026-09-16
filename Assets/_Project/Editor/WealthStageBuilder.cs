@@ -87,7 +87,7 @@ namespace RunRich.Editor
             var model = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Visual/Mesh/LowPoly/" + modelName + ".fbx"));
             model.transform.SetParent(host.transform, false);
             model.transform.localScale = scale;
-            model.transform.localRotation = Quaternion.Euler(0, kind == TrackPickup.PickupKind.Money ? 90 : 0, 0);
+            model.transform.localRotation = Quaternion.Euler(0, kind == TrackPickup.PickupKind.Money ? 90 : 180, 0);
             model.transform.localPosition = Vector3.up * 0.13f;
             foreach (var renderer in model.GetComponentsInChildren<Renderer>())
                 renderer.sharedMaterials = Enumerable.Repeat(surface, renderer.sharedMaterials.Length).ToArray();

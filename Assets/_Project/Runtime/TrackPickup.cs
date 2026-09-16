@@ -2,34 +2,30 @@ using UnityEngine;
 
 namespace RunRich
 {
-    public sealed class TrackPickup : MonoBehaviour
+    public sealed class TrackPickup : TrackInteraction
     {
         public enum PickupKind { Money, Alcohol }
         [SerializeField] private PickupKind kind;
-        [SerializeField, Min(0)] private float distance;
-        [SerializeField] private float lateralOffset;
         [SerializeField, Min(0.01f)] private float collectionRadius = 0.48f;
 
         public PickupKind Kind => kind;
-        public float Distance => distance;
-        public float LateralOffset => lateralOffset;
-        public bool IsCollected { get; private set; }
+        public bool IsCollected => IsTriggered;
 
-        public bool Intersects(Vector2 from, Vector2 to)
+        public override bool Intersects(Vector2 from, Vector2 to)
         {
-            var point = new Vector2(lateralOffset, distance);
+            var point = new Vector2(LateralOffset, Distance);
             Vector2 segment = to - from;
             float t = segment.sqrMagnitude > 0 ? Mathf.Clamp01(Vector2.Dot(point - from, segment) / segment.sqrMagnitude) : 0;
             return (point - from - segment * t).sqrMagnitude <= collectionRadius * collectionRadius;
         }
 
         public bool TryCollect(RunSession session, WealthSettings settings)
+            => TryActivate(session, settings, LateralOffset);
+
+        protected override bool Apply(RunSession session, WealthSettings settings, float crossingOffset)
         {
-            if (IsCollected || !isActiveAndEnabled) return false;
-            // Закрываем повторный вход до публикации событий изменения счёта.
-            IsCollected = true;
             int delta = kind == PickupKind.Money ? settings.MoneyValue : -settings.AlcoholPenalty;
-            if (!session.TryChangeScore(delta)) { IsCollected = false; return false; }
+            if (!session.TryChangeScore(delta)) return false;
             gameObject.SetActive(false);
             return true;
         }
