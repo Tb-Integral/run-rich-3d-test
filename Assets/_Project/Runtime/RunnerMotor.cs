@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace RunRich
@@ -10,6 +11,8 @@ namespace RunRich
         [SerializeField] private PlayerPresentation presentation;
         [SerializeField] private bool startAutomatically = true;
 
+        public event Action ReachedEnd;
+        public void BindPath(TrackPath track) { Stop(); path = track; }
         public TrackPath Path => path;
         public RunnerSettings Settings => settings;
         public float Distance { get; private set; }
@@ -74,7 +77,11 @@ namespace RunRich
             presentation.SetLateralMotion((LateralOffset - previousOffset) / deltaTime);
             Distance = Mathf.Min(path.Length, Distance + settings.ForwardSpeed * deltaTime);
             ApplyPose();
-            if (Distance >= path.Length) Stop();
+            if (Distance >= path.Length)
+            {
+                Stop();
+                ReachedEnd?.Invoke();
+            }
         }
 
         private void ApplyPose()

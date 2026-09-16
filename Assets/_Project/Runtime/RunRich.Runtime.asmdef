@@ -2,6 +2,8 @@
   "name": "RunRich.Runtime",
   "rootNamespace": "RunRich",
   "references": [
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "ButchersGames.LevelManagement",
+    "Unity.ugui"
   ]
 }

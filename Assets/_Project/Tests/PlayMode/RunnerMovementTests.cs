@@ -292,6 +292,7 @@ namespace RunRich.Tests
         {
             yield return SceneManager.LoadSceneAsync("Gameplay", LoadSceneMode.Single);
             yield return null;
+            Object.FindFirstObjectByType<RunSession>().enabled = false;
             Object.FindFirstObjectByType<RunnerMotor>().ResetToStart();
         }
         private static IEnumerator Unload()
@@ -307,11 +308,12 @@ namespace RunRich.Tests
     {
         public Mouse Mouse;
         public float X;
+        public float Y = -1;
         public bool Held;
 
         private void Update()
         {
-            var state = new MouseState { position = new Vector2(X, Screen.height * 0.5f) };
+            var state = new MouseState { position = new Vector2(X, Y < 0 ? Screen.height * 0.5f : Y) };
             InputSystem.QueueStateEvent(Mouse, Held ? state.WithButton(MouseButton.Left) : state);
             InputSystem.Update();
         }

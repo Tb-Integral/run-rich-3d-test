@@ -4,7 +4,9 @@
   "references": [
     "RunRich.Runtime",
     "ButchersGames.LevelManagement",
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "Unity.ugui",
+    "Unity.InputSystem.TestFramework"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

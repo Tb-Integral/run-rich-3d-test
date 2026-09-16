@@ -11,6 +11,12 @@ namespace RunRich.Editor
             DrawDefaultInspector();
             if (!Application.isPlaying) return;
             var motor = (RunnerMotor)target;
+            var session = Object.FindFirstObjectByType<RunSession>();
+            if (session != null)
+            {
+                EditorGUILayout.HelpBox("Забег управляется Run Session. Для повтора используйте кнопку UI или Inspector Run Session.", MessageType.Info);
+                return;
+            }
             EditorGUILayout.LabelField("Путь", $"{motor.Distance:F1} / {motor.Path.Length:F1}");
             if (GUILayout.Button("С начала"))
             {

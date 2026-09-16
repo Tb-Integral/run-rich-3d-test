@@ -8,6 +8,7 @@ namespace RunRich
         private readonly HorizontalDrag _drag = new();
         private bool _focused = true;
         private bool _paused;
+        private bool _pressHeld;
 
         public float ReadDelta()
         {
@@ -20,9 +21,26 @@ namespace RunRich
                 : _drag.Sample(mouse.leftButton.isPressed, -1, mouse.position.ReadValue().x, Screen.width);
         }
 
+        public bool TryGetPressPosition(out Vector2 position)
+        {
+            position = default;
+            if (!isActiveAndEnabled || !_focused || _paused) return false;
+            var touch = Touchscreen.current;
+            bool held = touch != null && touch.primaryTouch.press.isPressed;
+            if (held) position = touch.primaryTouch.position.ReadValue();
+            else if (Mouse.current != null)
+            {
+                held = Mouse.current.leftButton.isPressed;
+                position = Mouse.current.position.ReadValue();
+            }
+            bool pressed = held && !_pressHeld;
+            _pressHeld = held;
+            return pressed;
+        }
+
         public void ResetGesture() => _drag.Reset();
-        private void OnDisable() => ResetGesture();
-        private void OnApplicationFocus(bool focused) { _focused = focused; ResetGesture(); }
-        private void OnApplicationPause(bool paused) { _paused = paused; ResetGesture(); }
+        private void OnDisable() { _pressHeld = true; ResetGesture(); }
+        private void OnApplicationFocus(bool focused) { _focused = focused; _pressHeld = true; ResetGesture(); }
+        private void OnApplicationPause(bool paused) { _paused = paused; _pressHeld = true; ResetGesture(); }
     }
 }

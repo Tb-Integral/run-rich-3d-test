@@ -14,6 +14,7 @@ namespace RunRich.Tests
         {
             yield return SceneManager.LoadSceneAsync("Gameplay", LoadSceneMode.Single);
             yield return null;
+            Object.FindFirstObjectByType<RunSession>().enabled = false;
             Object.FindFirstObjectByType<RunnerMotor>().ResetToStart();
             Object.FindFirstObjectByType<RunnerMotor>().enabled = false;
             var view = Object.FindFirstObjectByType<PlayerPresentation>();
@@ -49,6 +50,7 @@ namespace RunRich.Tests
         {
             yield return SceneManager.LoadSceneAsync("Gameplay", LoadSceneMode.Single);
             yield return null;
+            Object.FindFirstObjectByType<RunSession>().enabled = false;
             Object.FindFirstObjectByType<RunnerMotor>().ResetToStart();
             Object.FindFirstObjectByType<RunnerMotor>().enabled = false;
             var runner = GameObject.Find("Runner");
@@ -89,6 +91,7 @@ namespace RunRich.Tests
         {
             yield return SceneManager.LoadSceneAsync("Gameplay", LoadSceneMode.Single);
             yield return null;
+            Object.FindFirstObjectByType<RunSession>().enabled = false;
             Object.FindFirstObjectByType<RunnerMotor>().ResetToStart();
             Object.FindFirstObjectByType<RunnerMotor>().enabled = false;
             var view = Object.FindFirstObjectByType<PlayerPresentation>();
