@@ -3,7 +3,8 @@
   "rootNamespace": "RunRich.Tests",
   "references": [
     "RunRich.Runtime",
-    "ButchersGames.LevelManagement"
+    "ButchersGames.LevelManagement",
+    "Unity.InputSystem"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

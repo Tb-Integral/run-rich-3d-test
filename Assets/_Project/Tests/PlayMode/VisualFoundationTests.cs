@@ -13,6 +13,9 @@ namespace RunRich.Tests
         public IEnumerator WalkCyclesAndBlendsDoNotBendKneesBackwards()
         {
             yield return SceneManager.LoadSceneAsync("Gameplay", LoadSceneMode.Single);
+            yield return null;
+            Object.FindFirstObjectByType<RunnerMotor>().ResetToStart();
+            Object.FindFirstObjectByType<RunnerMotor>().enabled = false;
             var view = Object.FindFirstObjectByType<PlayerPresentation>();
             var animator = view.GetComponentInChildren<Animator>();
             view.SetWalking(true);
@@ -45,6 +48,9 @@ namespace RunRich.Tests
         public IEnumerator GameplayAnimatesOneOutfitWithoutMovingRunner()
         {
             yield return SceneManager.LoadSceneAsync("Gameplay", LoadSceneMode.Single);
+            yield return null;
+            Object.FindFirstObjectByType<RunnerMotor>().ResetToStart();
+            Object.FindFirstObjectByType<RunnerMotor>().enabled = false;
             var runner = GameObject.Find("Runner");
             Assert.That(runner, Is.Not.Null);
             var animator = runner.GetComponentInChildren<Animator>();
@@ -66,7 +72,7 @@ namespace RunRich.Tests
             var position = runner.transform.position;
             yield return new WaitForSeconds(0.24f);
             Assert.That(Quaternion.Angle(rotation, leg.localRotation), Is.GreaterThan(3), "Animator должен проигрывать созданный цикл ходьбы.");
-            Assert.That(Vector3.Distance(position, runner.transform.position), Is.LessThan(0.001f), "Root motion не должен двигать персонажа на этапе 1.");
+            Assert.That(Vector3.Distance(position, runner.transform.position), Is.LessThan(0.001f), "Root motion не должен двигать персонажа при остановленном моторе.");
             foreach (var renderer in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
                 foreach (var material in renderer.sharedMaterials)
                 {
@@ -82,6 +88,9 @@ namespace RunRich.Tests
         public IEnumerator HappinessBlendsAndDowngradeDoesNotSpin()
         {
             yield return SceneManager.LoadSceneAsync("Gameplay", LoadSceneMode.Single);
+            yield return null;
+            Object.FindFirstObjectByType<RunnerMotor>().ResetToStart();
+            Object.FindFirstObjectByType<RunnerMotor>().enabled = false;
             var view = Object.FindFirstObjectByType<PlayerPresentation>();
             var animator = view.GetComponentInChildren<Animator>();
             view.SetWalking(true);
@@ -107,14 +116,14 @@ namespace RunRich.Tests
             view.SetOutfit(2);
             yield return new WaitForSeconds(0.8f);
             Assert.That(view.IsUpgrading, Is.False);
-            Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Locomotion"), Is.True);
+            yield return WaitForLocomotion(animator);
             view.SetOutfit(3);
             yield return new WaitForSeconds(0.2f);
             view.gameObject.SetActive(false);
             view.gameObject.SetActive(true);
             yield return new WaitForSeconds(0.2f);
             Assert.That(view.IsUpgrading, Is.False);
-            Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Locomotion"), Is.True);
+            yield return WaitForLocomotion(animator);
             view.SetOutfit(4);
             yield return new WaitForSeconds(0.2f);
             view.ShowDefeat();
@@ -130,6 +139,14 @@ namespace RunRich.Tests
             var empty = SceneManager.CreateScene("After presentation validation");
             SceneManager.SetActiveScene(empty);
             yield return SceneManager.UnloadSceneAsync("Gameplay");
+        }
+        private static IEnumerator WaitForLocomotion(Animator animator)
+        {
+            // Поворот длится 0.65 с, затем идёт crossfade: ждём состояние, а не точную границу кадра.
+            float deadline = Time.realtimeSinceStartup + 2;
+            while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Locomotion") && Time.realtimeSinceStartup < deadline)
+                yield return null;
+            Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Locomotion"), Is.True);
         }
     }
 }

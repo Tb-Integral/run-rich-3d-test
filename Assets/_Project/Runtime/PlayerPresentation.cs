@@ -15,6 +15,16 @@ namespace RunRich
         [SerializeField, Range(0, 1)] private float initialHappiness = 0.5f;
         [SerializeField, Min(0)] private int initialOutfit = 1;
 
+        [SerializeField, Range(0, 60)] private float maxSteeringAngle = 25;
+        [SerializeField, Min(0)] private float steeringDamping = 0.025f;
+        [SerializeField, Min(0)] private float steeringReturnDamping = 0.1f;
+        [SerializeField, Min(0)] private float steeringReleaseDelay = 0.08f;
+
+        private float _targetSteeringAngle;
+        private float _timeWithoutSteering;
+        private float _upgradeAngle;
+        public float SteeringAngle { get; private set; }
+
         private static readonly int HappinessParameter = Animator.StringToHash("Happiness");
         private static readonly int IdleState = Animator.StringToHash("Base Layer.Idle");
         private static readonly int WalkingState = Animator.StringToHash("Base Layer.Locomotion");
@@ -43,11 +53,44 @@ namespace RunRich
             if (!IsUpgrading) return;
             _upgradeElapsed += Time.deltaTime;
             float progress = Mathf.Clamp01(_upgradeElapsed / upgradeDuration);
-            // Поворачивается только визуал: направление движения и коллайдер не затрагиваются.
-            visualPivot.localRotation = _restRotation * Quaternion.Euler(0, Mathf.SmoothStep(0, 360, progress), 0);
+            _upgradeAngle = Mathf.SmoothStep(0, 360, progress);
             if (progress < 1) return;
             CancelUpgrade();
             PlayState();
+        }
+
+        private void LateUpdate()
+        {
+            _timeWithoutSteering += Time.deltaTime;
+            float targetAngle = State == MotionState.Walking && _timeWithoutSteering <= steeringReleaseDelay
+                ? _targetSteeringAngle : 0;
+            float damping = Mathf.Approximately(targetAngle, 0) ? steeringReturnDamping : steeringDamping;
+            float blend = damping <= 0 ? 1 : 1 - Mathf.Exp(-Time.deltaTime / damping);
+            SteeringAngle = Mathf.Lerp(SteeringAngle, targetAngle, blend);
+            ApplyVisualRotation();
+        }
+
+        public void SetLateralMotion(float lateralSpeed)
+        {
+            if (State != MotionState.Walking) return;
+            if (Mathf.Abs(lateralSpeed) < 0.01f) return;
+            // Жест задаёт сторону, а не угол из соотношения скоростей. Нулевая выборка
+            // между событиями мыши не обрывает короткий поворот на высоком FPS.
+            _targetSteeringAngle = Mathf.Sign(lateralSpeed) * maxSteeringAngle;
+            _timeWithoutSteering = 0;
+        }
+
+        private void ApplyVisualRotation()
+        {
+            // Руление и поворот при смене одежды складываются только на визуале.
+            visualPivot.localRotation = _restRotation * Quaternion.Euler(0, SteeringAngle + _upgradeAngle, 0);
+        }
+
+        private void ResetSteering()
+        {
+            _targetSteeringAngle = 0;
+            _timeWithoutSteering = float.PositiveInfinity;
+            SteeringAngle = 0;
         }
 
         public void SetHappiness(float normalized) => Happiness = Mathf.Clamp01(normalized);
@@ -58,6 +101,7 @@ namespace RunRich
             var next = walking ? MotionState.Walking : MotionState.Idle;
             if (State == next) return;
             State = next;
+            if (!walking) _targetSteeringAngle = 0;
             if (!IsUpgrading) PlayState();
         }
 
@@ -86,6 +130,7 @@ namespace RunRich
 
         public void ResetPresentation()
         {
+            ResetSteering();
             CancelUpgrade();
             State = MotionState.Idle;
             Happiness = initialHappiness;
@@ -98,6 +143,7 @@ namespace RunRich
         private void Finish(MotionState state)
         {
             if (State == MotionState.Victory || State == MotionState.Defeat) return;
+            ResetSteering();
             CancelUpgrade();
             State = state;
             PlayState();
@@ -110,6 +156,8 @@ namespace RunRich
 
         private void PlayState()
         {
+            // При выключении объекта Animator уже может быть неактивен; OnEnable восстановит состояние.
+            if (animator == null || !animator.isActiveAndEnabled) return;
             int state = State switch
             {
                 MotionState.Walking => WalkingState,
@@ -123,14 +171,16 @@ namespace RunRich
         private void CancelUpgrade()
         {
             IsUpgrading = false;
-            visualPivot.localRotation = _restRotation;
+            _upgradeAngle = 0;
+            ApplyVisualRotation();
         }
 
         private void OnDisable()
         {
-            if (!IsUpgrading) return;
+            bool wasUpgrading = IsUpgrading;
+            ResetSteering();
             CancelUpgrade();
-            if (animator != null && animator.isActiveAndEnabled) PlayState();
+            if (wasUpgrading && animator != null && animator.isActiveAndEnabled) PlayState();
         }
 
         private void OnEnable()
